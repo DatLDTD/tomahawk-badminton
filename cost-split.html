@@ -83,7 +83,7 @@
     .button-danger:hover { background: #84332d; }
     .session-layout { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); align-items: start; gap: 16px; }
     .session-management { display: grid; min-width: 0; align-content: start; gap: 16px; }
-    .session-costs, .session-attendees, .session-payments { min-width: 0; }
+    .session-costs, .session-attendees, .session-payments, .session-qr { min-width: 0; }
     .player-panel-summary { list-style: none; cursor: pointer; }
     .player-panel-summary::-webkit-details-marker { display: none; }
     .player-panel-summary .count { flex: 0 0 auto; }
@@ -116,6 +116,9 @@
     .cost-output { display: flex; min-height: 39px; align-items: center; color: var(--ink); font-size: 14px; font-weight: 700; }
     .cost-subtotal { margin: 10px 0 0; color: var(--muted); font-size: 11px; }
     .cost-subtotal strong { color: var(--ink); font-size: 12px; }
+    .qr-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .qr-preview { display: block; width: min(220px, 100%); max-height: 220px; object-fit: contain; margin-top: 12px; border: 1px solid var(--line); border-radius: 5px; background: #fff; }
+    .qr-preview[hidden] { display: none; }
     .layout { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(360px, .92fr); align-items: start; gap: 20px; }
     .manage-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .95fr); align-items: start; gap: 20px; }
     .panel { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: var(--shadow); }
@@ -178,6 +181,7 @@
     .results-head .panel-title { margin-bottom: 4px; }
     .formula { color: var(--muted); font-size: 11px; line-height: 1.45; }
     .result-content { padding: 14px 16px 16px; }
+    .monthly-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; }
     .guest-fee-settings { border-bottom: 1px solid var(--line); padding: 14px 16px; }
     .guest-fee-heading { margin-bottom: 9px; font-size: 12px; font-weight: 760; }
     .guest-fee-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -203,6 +207,7 @@
     .type-tag { display: inline-flex; align-items: center; border-radius: 3px; padding: 3px 6px; color: var(--green-dark); background: var(--green-soft); font-size: 10px; }
     .type-tag.guest { color: #765523; background: #f7f0dc; }
     .note { margin: 13px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+    .site-credit { margin-top: 24px; border-top: 1px solid var(--line); padding: 14px 0 0; color: var(--muted); text-align: center; font-size: 11px; line-height: 1.5; }
     .alert { margin: 0 0 14px; border: 1px solid #f0c7c1; border-radius: 5px; padding: 10px 12px; color: var(--red); background: var(--red-soft); font-size: 12px; line-height: 1.45; }
     .blank-results { display: grid; min-height: 182px; place-items: center; padding: 20px; color: var(--muted); text-align: center; font-size: 13px; line-height: 1.6; }
     .blank-results strong { display: block; margin-bottom: 3px; color: var(--ink); }
@@ -220,12 +225,16 @@
       .session-costs { order: 1; }
       .session-payments { order: 2; }
       .session-attendees { order: 3; }
+      .session-qr { order: 4; }
       .session-summary { grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); }
       .summary-attendance .attendance-breakdown { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px 10px; }
       .total-entry input { width: min(210px, 42vw); font-size: 25px; }
     }
     @media (max-width: 430px) {
       .brand { font-size: 11px; }
+      .monthly-panel-head { flex-wrap: wrap; align-items: flex-start; }
+      .monthly-panel-head > div { width: 100%; }
+      .monthly-actions { width: 100%; justify-content: space-between; }
       .tab-button { flex: 1; padding: 0 8px; font-size: 12px; }
       .session-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .summary-cell { padding: 13px; }
@@ -238,7 +247,9 @@
       .total-entry { justify-content: flex-start; }
       .total-entry input { width: min(260px, 65vw); text-align: left; }
       .panel-head, .section, .result-content { padding-right: 16px; padding-left: 16px; }
-      .add-row { gap: 6px; }
+      .add-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; }
+      .add-row input.field { grid-column: 1 / -1; }
+      .add-row select.field { width: 112px; max-width: 100%; flex-basis: 112px; }
       .add-row .button { padding: 0 10px; }
       select.field { width: 98px; flex-basis: 98px; padding: 0 7px; }
       .monthly-fields { grid-template-columns: minmax(0, .8fr) minmax(0, 1fr); gap: 8px; }
@@ -257,7 +268,7 @@
         <span class="brand-mark" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.5 12 3l7 2.5-2 8-5 7-5-7-2-8Z"/><path d="m5 5.5 7 15m7-15-7 15M5 5.5 19 5.5M7 13h10"/></svg>
         </span>
-        Sổ buổi cầu
+        Sổ cầu
       </div>
     </header>
 
@@ -350,6 +361,12 @@
               <input class="field" id="extra-court-fee" type="number" min="0" step="5000" inputmode="numeric">
             </label>
           </div>
+          <div class="cost-item">
+            <h3 class="cost-title">Chi phí phát sinh</h3>
+            <label class="cost-field" for="misc-expense">Số tiền (có thể nhập số âm)
+              <input class="field" id="misc-expense" type="number" step="1000" inputmode="numeric" placeholder="0">
+            </label>
+          </div>
         </div>
       </details>
 
@@ -386,6 +403,19 @@
           <div class="people-list" id="guest-list" aria-live="polite"></div>
         </div>
       </details>
+      <section class="panel session-qr" aria-labelledby="qr-title">
+        <div class="panel-head">
+          <h2 class="panel-title" id="qr-title">QR chuyển tiền</h2>
+        </div>
+        <div class="section">
+          <div class="qr-controls">
+            <input class="sr-only" id="qr-image-input" type="file" accept="image/*">
+            <button class="button button-quiet" id="qr-image-choose" type="button">Chọn ảnh QR</button>
+            <button class="button button-quiet" id="qr-image-remove" type="button" hidden>Xóa ảnh</button>
+          </div>
+          <img class="qr-preview" id="qr-image-preview" alt="Ảnh QR chuyển tiền" hidden>
+        </div>
+      </section>
       </div>
 
       <section class="panel session-payments" aria-labelledby="results-title">
@@ -440,12 +470,18 @@
         </section>
 
         <section class="panel" aria-labelledby="monthly-title">
-          <div class="panel-head">
+          <div class="panel-head monthly-panel-head">
             <div>
               <h2 class="panel-title" id="monthly-title">Chia tiền sân theo tháng</h2>
               <div class="formula">Chia đều cho toàn bộ thành viên cố định, gồm cả nam và nữ</div>
             </div>
-            <span class="count" id="monthly-count">Chưa tính</span>
+            <div class="monthly-actions">
+              <span class="count" id="monthly-count">Chưa tính</span>
+              <button class="button button-quiet" id="monthly-export" type="button" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>
+                Xuất ảnh
+              </button>
+            </div>
           </div>
           <div class="section">
             <div class="monthly-fields">
@@ -464,9 +500,10 @@
         </section>
       </div>
     </section>
+    <footer class="site-credit">© Đạt LĐTĐ - Tomahawk Badminton Club</footer>
     <dialog class="confirm-dialog" id="session-reset-dialog" aria-labelledby="session-reset-title" aria-describedby="session-reset-description">
       <h2 id="session-reset-title">Đặt lại buổi chơi?</h2>
-      <p id="session-reset-description">Thao tác sẽ bỏ chọn người cố định tham gia, xóa toàn bộ khách giao lưu và trạng thái đã đóng; đưa phí giao lưu, số lượng ống cầu, cầu lẻ và tiền sân thêm giờ về mặc định. Đơn giá ống cầu, ngày chơi và danh sách cố định được giữ nguyên.</p>
+      <p id="session-reset-description">Thao tác sẽ bỏ chọn người cố định tham gia, xóa toàn bộ khách giao lưu và trạng thái đã đóng; đưa phí giao lưu, số lượng ống cầu, cầu lẻ, tiền sân thêm giờ và chi phí phát sinh về mặc định. Đơn giá ống cầu, ngày chơi, ảnh QR và danh sách cố định được giữ nguyên.</p>
       <div class="confirm-actions">
         <button class="button button-quiet" id="session-reset-cancel" type="button">Hủy</button>
         <button class="button button-danger" id="session-reset-confirm" type="button">Đặt lại buổi</button>
@@ -480,8 +517,10 @@
       const monthlyKey = 'badminton-cost-split-monthly-v1';
       const monthlyPaidKey = 'badminton-cost-split-monthly-paid-v1';
       const sessionKey = 'badminton-cost-split-session-v1';
+      const qrDatabaseName = 'badminton-cost-split-qr-v1';
       const defaultGuestFees = { male: 75000, female: 50000 };
-      const defaultCosts = { tubeUnitPrice: 340000, tubeQuantity: 2, looseQuantity: 0, extraCourtFee: 0 };
+      const defaultCosts = { tubeUnitPrice: 340000, tubeQuantity: 2, looseQuantity: 0, extraCourtFee: 0, miscExpense: 0 };
+      const copyrightText = '© Đạt LĐTĐ - Tomahawk Badminton Club';
       const money = new Intl.NumberFormat('vi-VN', { maximumFractionDigits: 0 });
       const fixedList = document.getElementById('fixed-list');
       const guestList = document.getElementById('guest-list');
@@ -498,6 +537,10 @@
       const tubeQuantityInput = document.getElementById('tube-quantity');
       const looseQuantityInput = document.getElementById('loose-quantity');
       const extraCourtFeeInput = document.getElementById('extra-court-fee');
+      const miscExpenseInput = document.getElementById('misc-expense');
+      const qrImageInput = document.getElementById('qr-image-input');
+      const qrImagePreview = document.getElementById('qr-image-preview');
+      const qrImageRemoveButton = document.getElementById('qr-image-remove');
       const looseUnitPriceOutput = document.getElementById('loose-unit-price');
       const tubeSubtotalOutput = document.getElementById('tube-subtotal');
       const looseSubtotalOutput = document.getElementById('loose-subtotal');
@@ -511,6 +554,7 @@
       const monthlyTotal = document.getElementById('monthly-total');
       const monthlyResults = document.getElementById('monthly-results');
       const monthlyCount = document.getElementById('monthly-count');
+      const monthlyExportButton = document.getElementById('monthly-export');
       const sessionDraft = loadSession();
       let draggedFixedPersonId = null;
       let fixedPeople = loadRoster().map((person, index) => ({
@@ -523,6 +567,12 @@
       let monthlyTotals = loadMonthlyTotals();
       let monthlyPaid = loadMonthlyPayments();
       let guests = sessionDraft.guests.map((guest, index) => ({ ...guest, id: guest.id || `guest-${index}` }));
+      let qrDatabasePromise = null;
+      let qrImageBlob = null;
+      let qrImage = null;
+      let qrImageObjectUrl = null;
+      let qrImageLoadPromise = Promise.resolve(null);
+      let qrStorageLoadPromise = Promise.resolve();
 
       function loadSession() {
         try {
@@ -532,7 +582,7 @@
           }
           const savedCosts = saved.costs && typeof saved.costs === 'object' && !Array.isArray(saved.costs) ? saved.costs : {};
           const savedGuestFees = saved.guestFees && typeof saved.guestFees === 'object' && !Array.isArray(saved.guestFees) ? saved.guestFees : {};
-          const storedCost = (name) => Number.isSafeInteger(savedCosts[name]) && savedCosts[name] >= 0 ? savedCosts[name] : defaultCosts[name];
+          const storedCost = (name) => Number.isSafeInteger(savedCosts[name]) && (name === 'miscExpense' || savedCosts[name] >= 0) ? savedCosts[name] : defaultCosts[name];
           const storedGuestFee = (gender) => Number.isSafeInteger(savedGuestFees[gender]) && savedGuestFees[gender] >= 0 ? savedGuestFees[gender] : defaultGuestFees[gender];
           return {
             date: typeof saved.date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(saved.date) ? saved.date : '',
@@ -551,6 +601,7 @@
               tubeQuantity: storedCost('tubeQuantity'),
               looseQuantity: storedCost('looseQuantity'),
               extraCourtFee: storedCost('extraCourtFee'),
+              miscExpense: storedCost('miscExpense'),
             },
             guestFees: {
               male: storedGuestFee('male'),
@@ -574,6 +625,7 @@
             tubeQuantity: Number(tubeQuantityInput.value),
             looseQuantity: Number(looseQuantityInput.value),
             extraCourtFee: Number(extraCourtFeeInput.value),
+            miscExpense: Number(miscExpenseInput.value),
           },
           guestFees,
           paid: sessionPaid,
@@ -640,6 +692,75 @@
         localStorage.setItem(monthlyPaidKey, JSON.stringify(monthlyPaid));
       }
 
+      function openQrDatabase() {
+        if (!qrDatabasePromise) {
+          qrDatabasePromise = new Promise((resolve, reject) => {
+            const request = indexedDB.open(qrDatabaseName, 1);
+            request.onupgradeneeded = () => request.result.createObjectStore('images');
+            request.onsuccess = () => resolve(request.result);
+            request.onerror = () => reject(request.error);
+          });
+        }
+        return qrDatabasePromise;
+      }
+
+      async function saveQrImage(blob) {
+        const database = await openQrDatabase();
+        await new Promise((resolve, reject) => {
+          const transaction = database.transaction('images', 'readwrite');
+          transaction.objectStore('images').put(blob, 'transfer-qr');
+          transaction.oncomplete = resolve;
+          transaction.onerror = () => reject(transaction.error);
+          transaction.onabort = () => reject(transaction.error);
+        });
+      }
+
+      async function loadQrImage() {
+        const database = await openQrDatabase();
+        return new Promise((resolve, reject) => {
+          const request = database.transaction('images', 'readonly').objectStore('images').get('transfer-qr');
+          request.onsuccess = () => resolve(request.result || null);
+          request.onerror = () => reject(request.error);
+        });
+      }
+
+      async function deleteQrImage() {
+        const database = await openQrDatabase();
+        await new Promise((resolve, reject) => {
+          const transaction = database.transaction('images', 'readwrite');
+          transaction.objectStore('images').delete('transfer-qr');
+          transaction.oncomplete = resolve;
+          transaction.onerror = () => reject(transaction.error);
+          transaction.onabort = () => reject(transaction.error);
+        });
+      }
+
+      function displayQrImage(blob) {
+        if (qrImageObjectUrl) URL.revokeObjectURL(qrImageObjectUrl);
+        qrImageBlob = blob;
+        qrImage = null;
+        qrImagePreview.hidden = !blob;
+        qrImageRemoveButton.hidden = !blob;
+        if (!blob) {
+          qrImageObjectUrl = null;
+          qrImageLoadPromise = Promise.resolve(null);
+          return qrImageLoadPromise;
+        }
+
+        qrImageObjectUrl = URL.createObjectURL(blob);
+        qrImagePreview.src = qrImageObjectUrl;
+        qrImageLoadPromise = new Promise((resolve, reject) => {
+          const image = new Image();
+          image.onload = () => {
+            qrImage = image;
+            resolve(image);
+          };
+          image.onerror = () => reject(new Error('QR image could not be loaded'));
+          image.src = qrImageObjectUrl;
+        });
+        return qrImageLoadPromise;
+      }
+
       function updateMonthlyPayment(month, personId, isPaid) {
         const paidIds = new Set(monthlyPaid[month] || []);
         if (isPaid) paidIds.add(personId);
@@ -678,9 +799,10 @@
       }
 
       function recalculateSessionTotal() {
-        const inputs = [tubeUnitPriceInput, tubeQuantityInput, looseQuantityInput, extraCourtFeeInput];
+        const inputs = [tubeUnitPriceInput, tubeQuantityInput, looseQuantityInput, extraCourtFeeInput, miscExpenseInput];
         const values = inputs.map(input => Number(input.value));
-        const invalid = inputs.some(input => input.validity.badInput) || values.some(value => !Number.isSafeInteger(value) || value < 0);
+        const invalid = inputs.some(input => input.validity.badInput)
+          || values.some((value, index) => !Number.isSafeInteger(value) || (index < 4 && value < 0));
         if (invalid) {
           totalInput.value = '';
           totalDisplay.textContent = '—';
@@ -693,11 +815,11 @@
           return;
         }
 
-        const [tubeUnitPrice, tubeQuantity, looseQuantity, extraCourtFee] = values;
+        const [tubeUnitPrice, tubeQuantity, looseQuantity, extraCourtFee, miscExpense] = values;
         const looseUnitPrice = Math.ceil(tubeUnitPrice / 12 / 1000) * 1000;
         const tubeSubtotal = tubeUnitPrice * tubeQuantity;
         const looseSubtotal = looseUnitPrice * looseQuantity;
-        const total = tubeSubtotal + looseSubtotal + extraCourtFee;
+        const total = tubeSubtotal + looseSubtotal + extraCourtFee + miscExpense;
         if (![tubeSubtotal, looseSubtotal, total].every(Number.isSafeInteger)) {
           totalInput.value = '';
           totalDisplay.textContent = '—';
@@ -706,11 +828,19 @@
           showBlank('Tổng chi phí vượt giới hạn tính toán an toàn.', 'Kiểm tra chi phí');
           return;
         }
+        if (total < 0) {
+          totalInput.value = '';
+          totalDisplay.textContent = '—';
+          costSummaryLines.textContent = 'Tổng chi phí không thể nhỏ hơn 0';
+          saveSession();
+          showBlank('Chi phí phát sinh không thể làm tổng chi phí nhỏ hơn 0.', 'Kiểm tra chi phí');
+          return;
+        }
 
         looseUnitPriceOutput.textContent = formatMoney(looseUnitPrice);
         tubeSubtotalOutput.textContent = formatMoney(tubeSubtotal);
         looseSubtotalOutput.textContent = formatMoney(looseSubtotal);
-        costSummaryLines.textContent = `Ống cầu: ${tubeQuantity} × ${formatMoney(tubeUnitPrice)} = ${formatMoney(tubeSubtotal)} · Cầu lẻ: ${looseQuantity} × ${formatMoney(looseUnitPrice)} = ${formatMoney(looseSubtotal)} · Thêm giờ: ${formatMoney(extraCourtFee)}`;
+        costSummaryLines.textContent = `Ống cầu: ${tubeQuantity} × ${formatMoney(tubeUnitPrice)} = ${formatMoney(tubeSubtotal)} · Cầu lẻ: ${looseQuantity} × ${formatMoney(looseUnitPrice)} = ${formatMoney(looseSubtotal)} · Thêm giờ: ${formatMoney(extraCourtFee)} · Phát sinh: ${formatMoney(miscExpense)}`;
         totalInput.value = String(total);
         totalDisplay.textContent = money.format(total);
         saveSession();
@@ -721,6 +851,7 @@
         const exportButton = document.getElementById('session-export');
         exportButton.disabled = true;
         try {
+          await qrStorageLoadPromise;
           if (document.fonts?.ready) await document.fonts.ready;
           const imageWidth = 1440;
           const scale = 2;
@@ -778,17 +909,14 @@
               height: Math.max(46, Math.max(nameLines.length, typeLines.length) * 18 + 14),
             };
           });
-          const noteText = document.querySelector('#results .note')?.textContent.trim()
-            || document.querySelector('#results .blank-results')?.textContent.trim()
+          const noteText = document.querySelector('#results .blank-results')?.textContent.trim()
             || 'Chưa có kết quả.';
-          const noteLines = wrapLines(noteText, contentWidth, '12px "Aptos", "Segoe UI", sans-serif');
           const statRows = Math.ceil(stats.length / 2);
-          const statsHeight = stats.length ? statRows * 72 + Math.max(0, statRows - 1) * 8 : 0;
+          const statsHeight = stats.length ? statRows * 84 + Math.max(0, statRows - 1) * 8 : 0;
           const tableHeight = rowLayouts.length ? 38 + rowLayouts.reduce((sum, row) => sum + row.height, 0) : 82;
-          const noteHeight = Math.max(38, noteLines.length * 18 + 12);
           const paymentHeaderHeight = 72;
           const guestFeeHeight = 58;
-          const paymentAfterTable = rowLayouts.length ? 12 + noteHeight + 42 : 12 + 24;
+          const paymentAfterTable = rowLayouts.length ? 24 : 36;
           const paymentHeight = 24 + paymentHeaderHeight + 12 + guestFeeHeight + 12 + statsHeight + 12 + tableHeight + paymentAfterTable;
           const costRows = [
             {
@@ -806,10 +934,17 @@
               quantity: '',
               amount: Number.isSafeInteger(Number(extraCourtFeeInput.value)) ? formatMoney(Number(extraCourtFeeInput.value)) : '—',
             },
+            {
+              label: 'Chi phí phát sinh',
+              quantity: '',
+              amount: Number.isSafeInteger(Number(miscExpenseInput.value)) ? formatMoney(Number(miscExpenseInput.value)) : '—',
+            },
           ];
           const costHeaderHeight = 172;
           const costHeight = costHeaderHeight + 24 + 32 + costRows.length * 64 + 24;
-          const imageHeight = cardsY + Math.max(costHeight, paymentHeight) + margin;
+          const qrCardHeight = qrImageBlob ? 300 : 0;
+          const costStackHeight = costHeight + (qrCardHeight ? qrCardHeight + 16 : 0);
+          const imageHeight = cardsY + Math.max(costStackHeight, paymentHeight) + margin;
           const canvas = document.createElement('canvas');
           canvas.width = imageWidth * scale;
           canvas.height = imageHeight * scale;
@@ -859,7 +994,7 @@
 
           context.fillStyle = '#f4f4ef';
           context.fillRect(0, 0, imageWidth, imageHeight);
-          drawText('SỔ BUỔI CẦU', margin, 30, '800 12px "Aptos", "Segoe UI", sans-serif', '#176b4a');
+          drawText('SỔ CẦU', margin, 30, '800 12px "Aptos", "Segoe UI", sans-serif', '#176b4a');
           drawText('Sổ chi phí cầu lông', margin, 49, '750 28px "Aptos", "Segoe UI", sans-serif', '#17231e');
 
           const summaryY = 100;
@@ -912,6 +1047,18 @@
             costCursor += 58;
           });
 
+          if (qrImageBlob) {
+            await qrImageLoadPromise;
+            const qrCardY = costY + costHeight + 16;
+            roundedRect(costX, qrCardY, costWidth, qrCardHeight, 8, '#ffffff', '#dce3dc');
+            drawText('QR chuyển tiền', costX + 22, qrCardY + 18, '760 15px "Aptos", "Segoe UI", sans-serif', '#17231e');
+            const qrSize = 240;
+            const qrScale = Math.min(qrSize / qrImage.naturalWidth, qrSize / qrImage.naturalHeight);
+            const qrWidth = qrImage.naturalWidth * qrScale;
+            const qrHeight = qrImage.naturalHeight * qrScale;
+            context.drawImage(qrImage, costX + (costWidth - qrWidth) / 2, qrCardY + 48 + (qrSize - qrHeight) / 2, qrWidth, qrHeight);
+          }
+
           const payX = paymentX;
           const payY = cardsY;
           const payInnerX = payX + paymentPadding;
@@ -924,9 +1071,9 @@
 
           let paymentCursor = payY + paymentHeaderHeight + 12;
           roundedRect(payInnerX, paymentCursor, payInnerWidth, guestFeeHeight, 5, '#104c36', '#176b4a');
-          drawText('Phí giao lưu', payInnerX + 12, paymentCursor + 8, '760 12px "Aptos", "Segoe UI", sans-serif', '#ffffff');
-          drawText(`Nam ${formatMoney(Number(maleGuestFeeInput.value) || 0)}`, payInnerX + 12, paymentCursor + 31, '760 20px "Aptos", "Segoe UI", sans-serif', '#d7ed72');
-          drawText(`Nữ ${formatMoney(Number(femaleGuestFeeInput.value) || 0)}`, payInnerX + 190, paymentCursor + 31, '760 20px "Aptos", "Segoe UI", sans-serif', '#d7ed72');
+          drawText('Phí giao lưu', payInnerX + 12, paymentCursor + 6, '760 16px "Aptos", "Segoe UI", sans-serif', '#ffffff');
+          drawText(`Nam ${formatMoney(Number(maleGuestFeeInput.value) || 0)}`, payInnerX + 12, paymentCursor + 32, '760 22px "Aptos", "Segoe UI", sans-serif', '#d7ed72');
+          drawText(`Nữ ${formatMoney(Number(femaleGuestFeeInput.value) || 0)}`, payInnerX + 190, paymentCursor + 32, '760 22px "Aptos", "Segoe UI", sans-serif', '#d7ed72');
           paymentCursor += guestFeeHeight + 12;
 
           stats.forEach((stat, index) => {
@@ -935,10 +1082,10 @@
             const cellGap = 8;
             const cellWidth = (payInnerWidth - cellGap) / 2;
             const cellX = payInnerX + column * (cellWidth + cellGap);
-            const cellY = paymentCursor + row * 80;
-            roundedRect(cellX, cellY, cellWidth, 72, 5, stat.primary ? '#d7ed72' : '#f4f7f3', stat.primary ? '#b5cf55' : '');
-            drawWrappedText(stat.label, cellX + 10, cellY + 9, cellWidth - 20, '700 10px "Aptos", "Segoe UI", sans-serif', stat.primary ? '#104c36' : '#68756e', 13);
-            drawText(stat.value, cellX + 10, cellY + 39, stat.primary ? '780 22px "Aptos", "Segoe UI", sans-serif' : '700 14px "Aptos", "Segoe UI", sans-serif', stat.primary ? '#104c36' : '#17231e', 'left', cellWidth - 20);
+            const cellY = paymentCursor + row * 92;
+            roundedRect(cellX, cellY, cellWidth, 84, 5, stat.primary ? '#d7ed72' : '#f4f7f3', stat.primary ? '#b5cf55' : '');
+            drawWrappedText(stat.label, cellX + 10, cellY + 8, cellWidth - 20, stat.primary ? '700 13px "Aptos", "Segoe UI", sans-serif' : '700 10px "Aptos", "Segoe UI", sans-serif', stat.primary ? '#104c36' : '#68756e', stat.primary ? 16 : 13);
+            drawText(stat.value, cellX + 10, cellY + (stat.primary ? 49 : 39), stat.primary ? '780 24px "Aptos", "Segoe UI", sans-serif' : '700 14px "Aptos", "Segoe UI", sans-serif', stat.primary ? '#104c36' : '#17231e', 'left', cellWidth - 20);
           });
           paymentCursor += statsHeight ? statsHeight + 12 : 0;
 
@@ -977,12 +1124,7 @@
             paymentCursor += 82;
           }
 
-          if (rowLayouts.length) {
-            paymentCursor += 12;
-            drawWrappedText(noteText, payInnerX, paymentCursor, payInnerWidth, '11px "Aptos", "Segoe UI", sans-serif', '#68756e', 17);
-            paymentCursor += noteHeight + 18;
-          }
-
+          drawText(copyrightText, imageWidth / 2, imageHeight - margin + 7, '11px "Aptos", "Segoe UI", sans-serif', '#68756e', 'center');
           const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
           if (!blob) throw new Error('PNG rendering failed');
           const objectUrl = URL.createObjectURL(blob);
@@ -1400,7 +1542,6 @@
           ...fixedShares.filter(row => row.type === 'Cố định · Nam'),
           ...fixedShares.filter(row => row.type === 'Cố định · Nữ (miễn phí)'),
         ];
-        const paidTotal = rows.reduce((sum, row) => sum + row.amount, 0);
         const perPerson = fixedContributors.length ? formatMoney(fixedShare) : 'Không có người chia';
 
         results.replaceChildren();
@@ -1412,7 +1553,7 @@
           ['Tổng giao lưu', formatMoney(guestTotal), ''],
           ['Còn lại cho cố định', formatMoney(remaining), ''],
           ['Cố định nam chia phí', `${fixedContributors.length} người`, ''],
-          ['Phần cố định nam / người · làm tròn nghìn', perPerson, 'stat-primary'],
+          ['Phần cố định nam / người', perPerson, 'stat-primary'],
         ];
         statData.forEach(([label, value, className]) => {
           const stat = document.createElement('div');
@@ -1459,19 +1600,13 @@
           content.append(table);
         }
 
-        const note = document.createElement('p');
-        note.className = 'note';
-        const roundingSurplus = Math.max(0, paidTotal - total);
-        note.textContent = roundingSurplus
-          ? `Tổng thu ${formatMoney(paidTotal)}. Cố định nữ tham gia không phải đóng. Làm tròn lên nghìn đồng đều làm tổng thu cao hơn tổng chi ${formatMoney(roundingSurplus)}.`
-          : `Tổng thu ${formatMoney(paidTotal)}. Cố định nữ tham gia không phải đóng. Các khoản khớp chính xác với tổng tiền.`;
-        content.append(note);
         results.append(content);
         resultCount.textContent = `${rows.length} người cần đóng`;
       }
 
       function showMonthlyBlank(message, heading = 'Chưa có kết quả') {
         monthlyResults.replaceChildren();
+        monthlyExportButton.disabled = true;
         const blank = document.createElement('div');
         blank.className = 'blank-results';
         const content = document.createElement('div');
@@ -1555,15 +1690,178 @@
         });
         table.append(body);
         content.append(table);
-        const note = document.createElement('p');
-        note.className = 'note';
-        const roundingSurplus = Math.max(0, totalShares - total);
-        note.textContent = roundingSurplus
-          ? `Tổng thu ${formatMoney(totalShares)}. Làm tròn lên nghìn đồng đều làm tổng thu cao hơn tiền sân ${formatMoney(roundingSurplus)}.`
-          : `Tổng thu ${formatMoney(totalShares)}. Các khoản khớp chính xác với tổng tiền sân.`;
-        content.append(note);
         monthlyResults.append(content);
         monthlyCount.textContent = `${fixedPeople.length} người`;
+        monthlyExportButton.disabled = false;
+      }
+
+      async function exportMonthlyImage() {
+        monthlyExportButton.disabled = true;
+        try {
+          if (document.fonts?.ready) await document.fonts.ready;
+          const stats = [...monthlyResults.querySelectorAll('.stat')].map(stat => ({
+            label: stat.querySelector('.stat-label')?.textContent.trim() || '',
+            value: stat.querySelector('.stat-value')?.textContent.trim() || '',
+            primary: stat.classList.contains('stat-primary'),
+          }));
+          const rows = [...monthlyResults.querySelectorAll('tbody tr')].map(row => {
+            const cells = row.querySelectorAll('td');
+            return {
+              name: cells[0]?.textContent.trim() || '',
+              amount: cells[1]?.textContent.trim() || '',
+              paid: cells[2]?.querySelector('.paid-checkbox')?.checked || false,
+            };
+          });
+          if (!stats.length || !rows.length) return;
+
+          const imageWidth = 560;
+          const scale = 2;
+          const margin = 20;
+          const contentWidth = imageWidth - margin * 2;
+          const canvas = document.createElement('canvas');
+          const measurementContext = document.createElement('canvas').getContext('2d');
+          const wrapLines = (value, maxWidth, font) => {
+            measurementContext.font = font;
+            const words = String(value || '').split(/\s+/).filter(Boolean);
+            if (!words.length) return [''];
+            const lines = [];
+            let line = '';
+            words.forEach(word => {
+              const candidate = line ? `${line} ${word}` : word;
+              if (line && measurementContext.measureText(candidate).width > maxWidth) {
+                lines.push(line);
+                line = word;
+              } else {
+                line = candidate;
+              }
+            });
+            lines.push(line);
+            return lines;
+          };
+          const statRows = Math.ceil(stats.length / 2);
+          const statHeight = 64;
+          const statGap = 8;
+          const cardY = 82;
+          const statsY = 94;
+          const tableY = statsY + statRows * statHeight + Math.max(0, statRows - 1) * statGap + 16;
+          const tableX = margin + 10;
+          const tableWidth = contentWidth - 20;
+          const columnWidths = [250, 175, 60];
+          const rowLayouts = rows.map(row => {
+            const nameLines = wrapLines(row.name, columnWidths[0] - 16, '700 13px "Aptos", "Segoe UI", sans-serif');
+            return { ...row, nameLines, height: Math.max(48, nameLines.length * 18 + 16) };
+          });
+          const tableHeaderHeight = 34;
+          const rowsHeight = rowLayouts.reduce((sum, row) => sum + row.height, 0);
+          const cardHeight = tableY - cardY + tableHeaderHeight + rowsHeight + 16;
+          const imageHeight = cardY + cardHeight + 44;
+          canvas.width = imageWidth * scale;
+          canvas.height = imageHeight * scale;
+          const context = canvas.getContext('2d');
+          context.scale(scale, scale);
+
+          const roundedRect = (x, y, width, height, radius, fill, stroke = '') => {
+            context.beginPath();
+            context.moveTo(x + radius, y);
+            context.arcTo(x + width, y, x + width, y + height, radius);
+            context.arcTo(x + width, y + height, x, y + height, radius);
+            context.arcTo(x, y + height, x, y, radius);
+            context.arcTo(x, y, x + width, y, radius);
+            context.closePath();
+            context.fillStyle = fill;
+            context.fill();
+            if (stroke) {
+              context.strokeStyle = stroke;
+              context.lineWidth = 1;
+              context.stroke();
+            }
+          };
+          const drawText = (text, x, y, font, color, align = 'left', maxWidth) => {
+            context.font = font;
+            context.fillStyle = color;
+            context.textAlign = align;
+            context.textBaseline = 'top';
+            if (maxWidth) context.fillText(String(text), x, y, maxWidth);
+            else context.fillText(String(text), x, y);
+            context.textAlign = 'left';
+          };
+          const drawRule = (x, y, width) => {
+            context.beginPath();
+            context.moveTo(x, y);
+            context.lineTo(x + width, y);
+            context.strokeStyle = '#dce3dc';
+            context.lineWidth = 1;
+            context.stroke();
+          };
+
+          context.fillStyle = '#f4f4ef';
+          context.fillRect(0, 0, imageWidth, imageHeight);
+          drawText('SỔ CẦU', margin, 18, '800 10px "Aptos", "Segoe UI", sans-serif', '#176b4a');
+          drawText('Chia tiền sân theo tháng', margin, 38, '750 20px "Aptos", "Segoe UI", sans-serif', '#17231e');
+          const month = monthlyMonth.value;
+          drawText(`Tháng ${month.slice(5, 7)}/${month.slice(0, 4)}`, imageWidth - margin, 43, '700 12px "Aptos", "Segoe UI", sans-serif', '#68756e', 'right');
+          roundedRect(margin, cardY, contentWidth, cardHeight, 8, '#ffffff', '#dce3dc');
+
+          stats.forEach((stat, index) => {
+            const column = index % 2;
+            const row = Math.floor(index / 2);
+            const cellGap = statGap;
+            const cellWidth = (contentWidth - 24 - cellGap) / 2;
+            const cellX = margin + 12 + column * (cellWidth + cellGap);
+            const cellY = statsY + row * (statHeight + statGap);
+            roundedRect(cellX, cellY, cellWidth, statHeight, 5, stat.primary ? '#e7f2eb' : '#f4f7f3');
+            drawText(stat.label, cellX + 10, cellY + 9, '700 11px "Aptos", "Segoe UI", sans-serif', '#68756e', 'left', cellWidth - 20);
+            drawText(stat.value, cellX + 10, cellY + 34, stat.primary ? '780 19px "Aptos", "Segoe UI", sans-serif' : '700 16px "Aptos", "Segoe UI", sans-serif', stat.primary ? '#104c36' : '#17231e', 'left', cellWidth - 20);
+          });
+
+          roundedRect(tableX, tableY, tableWidth, tableHeaderHeight, 3, '#f4f7f3');
+          const columnX = [tableX, tableX + columnWidths[0], tableX + columnWidths[0] + columnWidths[1]];
+          ['Thành viên cố định', 'Tiền sân tháng này', 'Đã đóng'].forEach((heading, index) => {
+            const align = index === 1 ? 'right' : index === 2 ? 'center' : 'left';
+            const x = index === 1 ? columnX[index] + columnWidths[index] - 8 : index === 2 ? columnX[index] + columnWidths[index] / 2 : columnX[index] + 8;
+            drawText(heading, x, tableY + 11, '700 10px "Aptos", "Segoe UI", sans-serif', '#68756e', align, columnWidths[index] - 16);
+          });
+          let cursorY = tableY + tableHeaderHeight;
+          rowLayouts.forEach(row => {
+            drawRule(tableX, cursorY + row.height, tableWidth);
+            const nameHeight = row.nameLines.length * 18;
+            row.nameLines.forEach((line, index) => {
+              drawText(line, columnX[0] + 8, cursorY + (row.height - nameHeight) / 2 + index * 18, '700 13px "Aptos", "Segoe UI", sans-serif', '#104c36', 'left', columnWidths[0] - 16);
+            });
+            drawText(row.amount, columnX[1] + columnWidths[1] - 8, cursorY + (row.height - 15) / 2, '700 12px "Aptos", "Segoe UI", sans-serif', '#17231e', 'right', columnWidths[1] - 16);
+            const boxSize = 16;
+            const boxX = columnX[2] + (columnWidths[2] - boxSize) / 2;
+            const boxY = cursorY + (row.height - boxSize) / 2;
+            roundedRect(boxX, boxY, boxSize, boxSize, 3, row.paid ? '#176b4a' : '#ffffff', row.paid ? '#176b4a' : '#b9c5bc');
+            if (row.paid) {
+              context.beginPath();
+              context.moveTo(boxX + 4, boxY + 9);
+              context.lineTo(boxX + 7, boxY + 12);
+              context.lineTo(boxX + 14, boxY + 5);
+              context.strokeStyle = '#ffffff';
+              context.lineWidth = 2;
+              context.stroke();
+            }
+            cursorY += row.height;
+          });
+
+          drawText(copyrightText, imageWidth / 2, imageHeight - 28, '9px "Aptos", "Segoe UI", sans-serif', '#68756e', 'center');
+          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+          if (!blob) throw new Error('PNG rendering failed');
+          const objectUrl = URL.createObjectURL(blob);
+          const downloadLink = document.createElement('a');
+          downloadLink.href = objectUrl;
+          downloadLink.download = `chia-tien-san-thang-${month}.png`;
+          document.body.append(downloadLink);
+          downloadLink.click();
+          downloadLink.remove();
+          setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+        } catch (error) {
+          console.error(error);
+          window.alert('Không thể xuất ảnh lúc này. Vui lòng thử lại.');
+        } finally {
+          monthlyExportButton.disabled = !monthlyResults.querySelector('table');
+        }
       }
 
       document.getElementById('fixed-form').addEventListener('submit', event => {
@@ -1621,24 +1919,60 @@
         tubeQuantityInput.value = defaultCosts.tubeQuantity;
         looseQuantityInput.value = defaultCosts.looseQuantity;
         extraCourtFeeInput.value = defaultCosts.extraCourtFee;
+        miscExpenseInput.value = defaultCosts.miscExpense;
         document.getElementById('guest-name').value = '';
         updateGuestFeeLabels();
         renderPeople();
         recalculateSessionTotal();
       });
       document.getElementById('session-export').addEventListener('click', exportSessionImage);
+      monthlyExportButton.addEventListener('click', exportMonthlyImage);
+      document.getElementById('qr-image-choose').addEventListener('click', () => qrImageInput.click());
+      qrImageInput.addEventListener('change', async () => {
+        const [file] = qrImageInput.files || [];
+        qrImageInput.value = '';
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+          window.alert('Vui lòng chọn tệp ảnh.');
+          return;
+        }
+        try {
+          await displayQrImage(file);
+          await saveQrImage(file);
+        } catch (error) {
+          console.error(error);
+          displayQrImage(null);
+          window.alert('Không thể lưu ảnh QR. Vui lòng chọn ảnh khác.');
+        }
+      });
+      qrImageRemoveButton.addEventListener('click', async () => {
+        try {
+          await deleteQrImage();
+          displayQrImage(null);
+        } catch (error) {
+          console.error(error);
+          window.alert('Không thể xóa ảnh QR lúc này.');
+        }
+      });
 
       tubeUnitPriceInput.value = sessionDraft.costs.tubeUnitPrice;
       tubeQuantityInput.value = sessionDraft.costs.tubeQuantity;
       looseQuantityInput.value = sessionDraft.costs.looseQuantity;
       extraCourtFeeInput.value = sessionDraft.costs.extraCourtFee;
+      miscExpenseInput.value = sessionDraft.costs.miscExpense;
       maleGuestFeeInput.value = guestFees.male;
       femaleGuestFeeInput.value = guestFees.female;
       updateGuestFeeLabels();
       sessionDateInput.value = sessionDraft.date || new Date().toLocaleDateString('en-CA');
-      [tubeUnitPriceInput, tubeQuantityInput, looseQuantityInput, extraCourtFeeInput].forEach(input => {
+      [tubeUnitPriceInput, tubeQuantityInput, looseQuantityInput, extraCourtFeeInput, miscExpenseInput].forEach(input => {
         input.addEventListener('input', recalculateSessionTotal);
       });
+      qrStorageLoadPromise = loadQrImage()
+        .then(displayQrImage)
+        .catch(error => {
+          console.error(error);
+          return null;
+        });
       [maleGuestFeeInput, femaleGuestFeeInput].forEach(input => {
         input.addEventListener('input', updateGuestFees);
       });
